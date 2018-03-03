@@ -1,0 +1,44 @@
+<div class="row">
+  <main role="main" class="col-md-12 pt-3 px-4">
+    <h1 class="h2">Web scrapper</h1>
+    <div class="row">
+      <form (ngSubmit)="fetchData()" #urlForm="ngForm" class="form-inline">
+        <div class="form-group mx-sm-3 mb-2">
+          <label>Url to fetch</label>
+          <input type="text" class="form-control" [(ngModel)]="url" name="urlInput" required>
+        </div>
+        <div class="form-group mx-sm-3 mb-2">
+          <button type="submit" class="btn btn-success" [disabled]="!urlForm.form.valid">Get statistics</button>
+        </div>
+      </form>
+    </div>
+    <div>
+
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped table-sm" *ngIf="hasResult()">
+        <thead>
+        <tr>
+          <td>Most common word</td>
+          <td>{{ result.mostCommonWord }}</td>
+        </tr>
+        <tr>
+          <td>Longest word</td>
+          <td>{{ result.longestWord }}</td>
+        </tr>
+        <tr>Word frequencies</tr>
+        <tr>
+          <th>Word</th>
+          <th>Frequency</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let keyValue of result.wordFrequencies | mapToIterable">
+          <td>{{ keyValue.key }}</td>
+          <td>{{ keyValue.val }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
