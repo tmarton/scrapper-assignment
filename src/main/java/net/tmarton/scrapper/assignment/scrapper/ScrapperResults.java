@@ -1,7 +1,6 @@
-package net.tmarton.scrapper.assignment.api.scrapper;
+package net.tmarton.scrapper.assignment.scrapper;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,5 +15,5 @@ public class ScrapperResults {
 
     String longestWord;
 
-    Map<String, Long> wordFrequencies = new HashMap<>();
+    List<WordFrequency> wordFrequencies;
 }

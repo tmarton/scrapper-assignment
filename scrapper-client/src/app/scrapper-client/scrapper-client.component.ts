@@ -12,6 +12,7 @@ export class ScrapperClientComponent implements OnInit {
 
   url: string;
   result: any = {};
+  loading: boolean = false;
 
   ngOnInit() {
   }
@@ -20,16 +21,17 @@ export class ScrapperClientComponent implements OnInit {
     return Object.keys(this.result).length !== 0;
   }
 
-  keys() : Array<string> {
-    return this.hasResult() ? Object.keys(this.result.wordFrequencies) : [];
-  }
-
   fetchData() {
+    this.loading = true;
     this.http.get(`api/scrape?url=${this.url}`)
       .subscribe(res => {
-        console.log(res);
         this.result = res;
-      })
+        this.loading = false;
+      }, err => {
+        console.log(err);
+        this.loading = false;
+      });
+
   }
 
 }

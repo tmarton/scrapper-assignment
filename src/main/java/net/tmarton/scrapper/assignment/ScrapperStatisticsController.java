@@ -1,8 +1,8 @@
-package net.tmarton.scrapper.assignment.api;
+package net.tmarton.scrapper.assignment;
 
 import lombok.extern.java.Log;
-import net.tmarton.scrapper.assignment.api.scrapper.ScrapperResults;
-import net.tmarton.scrapper.assignment.api.scrapper.ScrapperService;
+import net.tmarton.scrapper.assignment.scrapper.ScrapperResults;
+import net.tmarton.scrapper.assignment.scrapper.ScrapperService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +24,6 @@ public class ScrapperStatisticsController {
 
     @RequestMapping(value = "/scrape", produces = APPLICATION_JSON_UTF8_VALUE)
     public ScrapperResults scrapeUrl(@RequestParam("url") String url) {
-
         return scrapperService.scrape(url);
     }
 }

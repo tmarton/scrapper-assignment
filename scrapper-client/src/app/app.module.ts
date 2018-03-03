@@ -7,7 +7,6 @@ import {RouterModule, Routes} from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { ScrapperClientComponent } from './scrapper-client/scrapper-client.component';
-import {MapToIterablePipe} from "./scrapper-client/map-to-iterable.pipe";
 
 const appRoutes: Routes = [
   {
@@ -20,7 +19,6 @@ const appRoutes: Routes = [
 @NgModule({
   declarations: [
     AppComponent,
-    MapToIterablePipe,
     ScrapperClientComponent
   ],
   imports: [
