@@ -130,7 +130,7 @@ module.exports = ".loader {\n  background: #e9e9e9;\n  position: fixed;\n  top: 
 /***/ "./src/app/scrapper-client/scrapper-client.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"row\">\n  <main role=\"main\" class=\"col-md-12 pt-3 px-4\">\n    <h1 class=\"h2\">Web scrapper</h1>\n    <div class=\"row\">\n      <form (ngSubmit)=\"fetchData()\" #urlForm=\"ngForm\" class=\"form-inline\">\n        <div class=\"form-group mx-sm-3 mb-2\">\n          <label>Url to fetch</label>\n          <input type=\"text\" class=\"form-control\" [(ngModel)]=\"url\" name=\"urlInput\" required>\n        </div>\n        <div class=\"form-group mx-sm-3 mb-2\">\n          <button type=\"submit\" class=\"btn btn-success\" [disabled]=\"!urlForm.form.valid\">Get statistics</button>\n        </div>\n      </form>\n    </div>\n    <div class=\"loader\" [hidden]=\"!loading\">\n      <div class=\"loading-spinner\"></div>\n    </div>\n    <div class=\"table-responsive\">\n      <table class=\"table table-striped table-sm\" *ngIf=\"hasResult()\">\n        <thead>\n        <tr>\n          <td>Most common word</td>\n          <td>{{ result.mostCommonWord }}</td>\n        </tr>\n        <tr>\n          <td>Longest word</td>\n          <td>{{ result.longestWord }}</td>\n        </tr>\n        <tr>Word frequencies</tr>\n        <tr>\n          <th>Word</th>\n          <th>Frequency</th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr *ngFor=\"let keyValue of result.wordFrequencies\">\n          <td>{{ keyValue.key }}</td>\n          <td>{{ keyValue.val }}</td>\n        </tr>\n        </tbody>\n      </table>\n    </div>\n  </main>\n</div>\n"
+module.exports = "<div class=\"row\">\n  <main role=\"main\" class=\"col-md-12 pt-3 px-4\">\n    <h1 class=\"h2\">Web scrapper</h1>\n    <div class=\"row\">\n      <form (ngSubmit)=\"fetchData()\" #urlForm=\"ngForm\" class=\"form-inline\">\n        <div class=\"form-group mx-sm-3 mb-2\">\n          <label>Url to fetch</label>\n          <input type=\"url\"  class=\"form-control\" [(ngModel)]=\"url\" name=\"urlInput\" required>\n        </div>\n        <div class=\"form-group mx-sm-3 mb-2\">\n          <button type=\"submit\" class=\"btn btn-success\" [disabled]=\"!urlForm.form.valid\">Get statistics</button>\n        </div>\n      </form>\n    </div>\n    <div class=\"loader\" [hidden]=\"!loading\">\n      <div class=\"loading-spinner\"></div>\n    </div>\n    <div class=\"table-responsive\">\n      <table class=\"table table-striped table-sm\" *ngIf=\"hasResult()\">\n        <thead>\n        <tr>\n          <td>Most common word</td>\n          <td>{{ result.mostCommonWord }}</td>\n        </tr>\n        <tr>\n          <td>Longest word</td>\n          <td>{{ result.longestWord }}</td>\n        </tr>\n        <tr>Word frequencies</tr>\n        <tr>\n          <th>Word</th>\n          <th>Frequency</th>\n        </tr>\n        </thead>\n        <tbody>\n        <tr *ngFor=\"let keyValue of result.wordFrequencies\">\n          <td>{{ keyValue.key }}</td>\n          <td>{{ keyValue.val }}</td>\n        </tr>\n        </tbody>\n      </table>\n      <div class=\"fetch-error\" [hidden]=\"!hasError()\">{{ errorMessage }}</div>\n    </div>\n  </main>\n</div>\n"
 
 /***/ }),
 
@@ -157,21 +157,28 @@ var ScrapperClientComponent = /** @class */ (function () {
         this.http = http;
         this.result = {};
         this.loading = false;
+        this.errorMessage = '';
     }
     ScrapperClientComponent.prototype.ngOnInit = function () {
     };
     ScrapperClientComponent.prototype.hasResult = function () {
         return Object.keys(this.result).length !== 0;
     };
+    ScrapperClientComponent.prototype.hasError = function () {
+        return this.errorMessage ? true : false;
+    };
     ScrapperClientComponent.prototype.fetchData = function () {
         var _this = this;
         this.loading = true;
+        this.errorMessage = '';
         this.http.get("api/scrape?url=" + this.url)
             .subscribe(function (res) {
             _this.result = res;
             _this.loading = false;
         }, function (err) {
             console.log(err);
+            _this.result = {};
+            _this.errorMessage = err.error.message;
             _this.loading = false;
         });
     };

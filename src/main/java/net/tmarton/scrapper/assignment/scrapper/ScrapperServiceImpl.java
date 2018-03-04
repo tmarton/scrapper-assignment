@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.extern.log4j.Log4j2;
 import net.tmarton.scrapper.assignment.jsoup.TextNodeTraversor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -16,11 +17,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by tmarton on 03/03/2018.
  */
+@Log4j2
 @Service
 public class ScrapperServiceImpl implements ScrapperService {
 
@@ -31,6 +34,7 @@ public class ScrapperServiceImpl implements ScrapperService {
     }
 
     public ScrapperResults scrape(String url) {
+        log.debug(String.format("Fetching data form url {}", url));
         String html = fetchData(url);
 
         Element body = Jsoup.parse(html).body();
@@ -55,13 +59,14 @@ public class ScrapperServiceImpl implements ScrapperService {
         return wordChunks.stream()
                 .parallel()
                 .flatMap(w -> tokenizeElemText(w))
-                .filter(s -> StringUtils.hasText(s))
+                // handle non breaking space character and empty strings
+                .filter(s -> StringUtils.hasText(s) && (s.length() != 1 || s.charAt(0) != '\u00A0'))
                 .collect(Collectors.toList());
     }
 
     private Stream<String> tokenizeElemText(String elemText) {
         ArrayList<String> partial = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(elemText, " ");
+        StringTokenizer tokenizer = new StringTokenizer(elemText);
         while (tokenizer.hasMoreElements()) {
             partial.add(tokenizer.nextToken().trim());
         }
@@ -79,8 +84,10 @@ public class ScrapperServiceImpl implements ScrapperService {
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode.equals(HttpStatus.MOVED_PERMANENTLY) || statusCode.equals(HttpStatus.FOUND) || statusCode.equals(HttpStatus.SEE_OTHER)) {
             if (httpHeaders.getLocation() != null) {
+                log.debug("Redirect to new url {}", url);
                 response = callUrl(httpHeaders.getLocation().toString());
             } else {
+                log.info("Can't fetch content of: {}", url);
                 throw new IllegalStateException(String.format("Can't fetch data from url %s", url));
             }
         }
@@ -91,7 +98,8 @@ public class ScrapperServiceImpl implements ScrapperService {
     private ResponseEntity<String> callUrl(String url) {
         try{
             return restTemplate.getForEntity(url.trim(), String.class);
-        } catch (Exception ex) {
+        } catch (RestClientException ex) {
+            log.info("Can't fetch content of: {}", url);
             throw new IllegalStateException(String.format("Can't fetch data from url %s", url));
         }
     }
